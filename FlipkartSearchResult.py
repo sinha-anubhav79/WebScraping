@@ -9,8 +9,8 @@ from io import BytesIO
 #---------------------------------GUI---------------------------------------------------------------------------------------------
 root = Tk()
 #-----------------Title bar----------------
-root.title("Google Search Result")
-root.iconbitmap('./icons/google-logo.ico')
+root.title("Flipkart Search Result")
+root.iconbitmap('./icons/flipkart.ico')
 #------------------------------------------
 
 #----------------Logo and text display---------------------------------------
@@ -21,13 +21,13 @@ myLabel0.config(font=("Courier", 40))
 #----------------------------------------------------------------------------
 
 #--------Input Field-------------
-SearchBar = Entry(root, width=50)
+SearchBar = Entry(root, width=50, borderwidth=1, font=('Helvetica',15))
 #--------------------------------
 
 #---------Position in the grid--------
-LabelSearchLogo.grid(column=1, row=0, columnspan=32)
-myLabel0.grid(column=1, row=1, columnspan=32)
-SearchBar.grid(column=1, row=2, columnspan=32)
+LabelSearchLogo.grid(column=1, row=0, columnspan=8)
+myLabel0.grid(column=1, row=1, columnspan=8)
+SearchBar.grid(column=1, row=2, columnspan=8)
 #-------------------------------------
 
 #-------------------------------------------------------Button function-------------------------------------------------------------
@@ -44,9 +44,18 @@ def onClick():
     response = requests.get(link, headers=headers)
     if resp.status_code == 200:
         linkSoup = BeautifulSoup(response.content, "html.parser")
-    Name = linkSoup.find('h1').get_text()
-    Price = linkSoup.find('div', class_='_1vC4OE _3qQ9m1').get_text()
-    Rating = linkSoup.find('div', class_='hGSR34').get_text()
+    if linkSoup.find('h1'):
+        Name = linkSoup.find('h1').get_text()
+    else:
+        Name = " No such product available "
+    if linkSoup.find('div', class_='_1vC4OE _3qQ9m1'):
+        Price = linkSoup.find('div', class_='_1vC4OE _3qQ9m1').get_text()
+    else:
+        Price = " - "
+    if linkSoup.find('div', class_='hGSR34'):
+        Rating = linkSoup.find('div', class_='hGSR34').get_text()
+    else:
+        Rating = " - "
     if linkSoup.find('div', class_='VGWI6T'):
         Offer = linkSoup.find('div', class_='VGWI6T').get_text()
     else:
@@ -57,42 +66,59 @@ def onClick():
     priceLabel = Label(root, text="Price : "+Price)
     ratingLabel = Label(root, text="Rating : "+Rating)
     offerLabel = Label(root, text="Offer : "+Offer)
-    nameLabel.config(font=(12))
+    nameLabel.config(font=('helvetica',15,'bold'))
     offerLabel.config(font=(12))
     priceLabel.config(font=(12))
     ratingLabel.config(font=(12))
-    nameLabel.grid(column=16, row=5)
-    offerLabel.grid(column=16, row=6)
-    priceLabel.grid(column=16, row=7)
-    ratingLabel.grid(column=16, row=8)
+    nameLabel.grid(column=4, row=5, columnspan=2)
+    offerLabel.grid(column=4, row=7, columnspan=2, pady=10)
+    priceLabel.grid(column=4, row=8, columnspan=2)
+    ratingLabel.grid(column=4, row=9, columnspan=2, pady=10)
     #----------------------------------------------------------------------------------------------------------------------------------
     def openLink():
         webbrowser.open(link)
+
     linkButton = Button(root, text="Visit page", command=openLink, bg='green', fg='white')
     linkButton.config(font=(14))
-    linkButton.grid(column=16, row=10)
-    MyButton.grid_forget()
+    linkButton.grid(column=4, row=10)
+    
     exitButton = Button(root, text="Exit", command=root.quit, padx=20, bg='#333', fg='white')
     exitButton.config(font=(14))
-    exitButton.grid(column=16, row=11)
+    exitButton.grid(column=5, row=10,pady=20)
     #------------------------------------------------------image----------------------------------------------------------------------
-    Img_url = linkSoup.find('div', class_='_2_AcLJ').get('style')[21:].strip(')')
-    print(Img_url)
-    u = urlopen(Img_url)
-    raw_data = u.read()
-    u.close()
-    im = Image.open(BytesIO(raw_data))
-    photo = ImageTk.PhotoImage(im)
-    imglabel = Label(image=photo)
-    imglabel.image = photo
-    imglabel.grid(column=17, row=6, rowspan=3)
+    Img_url = linkSoup.find('div', class_='_2_AcLJ')
+    if Img_url:
+        print(Img_url.get('style')[21:].strip(')'))
+        u = urlopen(Img_url.get('style')[21:].strip(')'))
+        raw_data = u.read()
+        u.close()
+        im = Image.open(BytesIO(raw_data))
+        photo = ImageTk.PhotoImage(im)
+        imglabel = Label(image=photo)
+        imglabel.image = photo
+        imglabel.grid(column=4, row=4, columnspan=2)
+    else:
+        imglabel = Label(root, text="No Image Available")
+        imglabel.grid(column=4, row=4, columnspan=2)
     #---------------------------------------------------------------------------------------------------------------------------------
+    def Labeldel():
+        nameLabel.grid_forget()
+        offerLabel.grid_forget()
+        priceLabel.grid_forget()
+        ratingLabel.grid_forget()
+        imglabel.grid_forget()
+        onClick()
+
+    #MyButton.grid_forget()
+    MyButton = Button(root, text="Search", command=Labeldel, bg='#333', fg='white')
+    MyButton.config(font=(15))
+    MyButton.grid(column=1, row=3, columnspan=8, pady=10)
 #-------------------------------------------------------------------------------------------------------------------------------------
 
 #-----------------------Search button------------------------------
 MyButton = Button(root, text="Search", command=onClick, bg='#333', fg='white')
 MyButton.config(font=(15))
-MyButton.grid(column=1, row=3, columnspan=32)
+MyButton.grid(column=1, row=3, columnspan=8, pady=10)
 #------------------------------------------------------------------
 
 root.mainloop()

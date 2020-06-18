@@ -3,12 +3,14 @@ from bs4 import BeautifulSoup
 from tkinter import *
 import webbrowser
 from PIL import ImageTk, Image
+from urllib.request import urlopen
+from io import BytesIO
 
 #---------------------------------GUI---------------------------------------------------------------------------------------------
 root = Tk()
 #-----------------Title bar----------------
 root.title("Price Compare")
-root.iconbitmap('./icons/google-logo.ico')
+root.iconbitmap('./icons/eCom.ico')
 #------------------------------------------
 
 #----------------Logo and text display---------------------------------------
@@ -18,14 +20,14 @@ myLabel0 = Label(root, text="Search on different e-commerce sites here:")
 #----------------------------------------------------------------------------"""
 
 #--------Input Field-------------
-SearchBar = Entry(root, width=50)
+SearchBar = Entry(root, width=50, borderwidth=1, font=('Helvetica',15))
 #--------------------------------
 
 #---------Position in the grid--------
-LabelSearchLogo.grid(column=1, row=0, columnspan=2)
-myLabel0.grid(column=1, row=1, columnspan=2)
+LabelSearchLogo.grid(column=1, row=0, columnspan=4)
+myLabel0.grid(column=1, row=1, columnspan=4)
 myLabel0.config(font=("Courier", 20))
-SearchBar.grid(column=1, row=2, columnspan=2)
+SearchBar.grid(column=1, row=2, columnspan=4)
 #-------------------------------------
 
 #-------------------------------------------------------Button function-------------------------------------------------------------
@@ -44,7 +46,7 @@ def onClick():
     snapdealName = soup1.find('p', class_='product-title')
     snapdealFeatures = soup1.find('div', class_='product-discount')
     snapdealpercent = soup1.find('div', class_='filled-stars').get('style')[6:-3]
-    snapdealRating = int(snapdealpercent)/20
+    snapdealRating = float(snapdealpercent)/20
     snapdealPrice = soup1.find('div', class_='product-price-row clearfix').find('span')
     #---------------------------------------------------------------------------------------------------------------------------------
     #---------------------------------------------------Amazon-search--------------------------------------------------------------
@@ -72,7 +74,7 @@ def onClick():
     shopcluesFeatures = soup3.find('span', class_='prd_discount')
     rawRating = soup3.find('span', class_='star')
     if rawRating:
-        shopcluesRating = int(rawRating.find('span').get('style')[6:-2])/14
+        shopcluesRating = (float(rawRating.find('span').get('style')[6:-2]))/14
     else:
         shopcluesRating = "unavailable"
     shopcluesPrice = soup3.find('span', class_='p_price')
@@ -96,42 +98,45 @@ def onClick():
         Offer = " - "
     #---------------------------------------------------------------------------------------------------------------------------------
     #-----------------------------------------Snapdeal-display------------------------------------------------------------------------
-    myLabel01 = Label(root, text=snapdealName.get_text(), wraplength=400, justify='left')
-    myLabel02 = Label(root, text=snapdealFeatures.get_text().replace('\n', ''))
-    myLabel03 = Label(root, text="Rating : "+str(snapdealRating))
-    myLabel04 = Label(root, text="Price : "+snapdealPrice.get_text())
-    myLabel01.grid(column=1, row=4)
-    myLabel02.grid(column=1, row=5)
-    myLabel03.grid(column=1, row=6)
-    myLabel04.grid(column=1, row=7)
+    SnapName = Label(root, text=snapdealName.get_text(), wraplength=400, justify='left',)
+    SnapOffer = Label(root, text=snapdealFeatures.get_text().replace('\n', ''))
+    SnapRating = Label(root, text="Rating : "+str(snapdealRating))
+    SnapPrice = Label(root, text="Price : "+snapdealPrice.get_text())
+    SnapName.config(font=('helvetica',10,'bold'))
+    SnapName.grid(column=1, row=4, columnspan=2)
+    SnapOffer.grid(column=1, row=5)
+    SnapRating.grid(column=1, row=6)
+    SnapPrice.grid(column=1, row=7)
     def openLink1():
         webbrowser.open(link1)
     linkButton1 = Button(root, text="View product", command=openLink1, bg='green', fg='white')
     linkButton1.grid(column=1, row=9)
     #---------------------------------------------------------------------------------------------------------------------------------
     #-----------------------------------------Amazon-display-----------------------------------------------------------------------
-    myLabel11 = Label(root, text=amazonName, wraplength=400, justify='left')
-    myLabel12 = Label(root, text=amazonFeatures.get_text().replace('\n', ''), wraplength=400, justify='left')
-    myLabel13 = Label(root, text="Rating : "+amazonRating.get_text())
-    myLabel14 = Label(root, text="Price : "+amazonPrice.get_text())
-    myLabel11.grid(column=2, row=4)
-    myLabel12.grid(column=2, row=5)
-    myLabel13.grid(column=2, row=6)
-    myLabel14.grid(column=2, row=7)
+    amaName = Label(root, text=amazonName, wraplength=400, justify='left')
+    amaOffer = Label(root, text=amazonFeatures.get_text().replace('\n', ''), wraplength=100, justify='left')
+    amaRating = Label(root, text="Rating : "+amazonRating.get_text(), wraplength=100, justify='left')
+    amaPrice = Label(root, text="Price : "+amazonPrice.get_text())
+    amaName.config(font=('helvetica',10,'bold'))
+    amaName.grid(column=3, row=4, columnspan=2)
+    amaOffer.grid(column=3, row=5)
+    amaRating.grid(column=3, row=6)
+    amaPrice.grid(column=3, row=7)
     def openLink2():
         webbrowser.open(link2)
     linkButton2 = Button(root, text="View product", command=openLink2, bg='green', fg='white')
-    linkButton2.grid(column=2, row=9)
+    linkButton2.grid(column=3, row=9)
     #---------------------------------------------------------------------------------------------------------------------------------
     #-----------------------------------------Shopclues-display-----------------------------------------------------------------------
-    myLabel06 = Label(root, text=shopcluesName.get_text(), wraplength=400, justify='left')
-    myLabel07 = Label(root, text=shopcluesFeatures.get_text().replace('\n', ''))
-    myLabel08 = Label(root, text="Rating : "+str(shopcluesRating))
-    myLabel09 = Label(root, text="Price : "+shopcluesPrice.get_text().replace(' ', ''))
-    myLabel06.grid(column=1, row=10)
-    myLabel07.grid(column=1, row=11)
-    myLabel08.grid(column=1, row=12)
-    myLabel09.grid(column=1, row=13)
+    shopName = Label(root, text=shopcluesName.get_text(), wraplength=400, justify='left')
+    shopOffer = Label(root, text=shopcluesFeatures.get_text().replace('\n', ''))
+    shopRating = Label(root, text="Rating : "+str(shopcluesRating))
+    shopPrice = Label(root, text="Price : "+shopcluesPrice.get_text().replace(' ', ''))
+    shopName.config(font=('helvetica',10,'bold'))
+    shopName.grid(column=1, row=10, columnspan=2)
+    shopOffer.grid(column=1, row=11)
+    shopRating.grid(column=1, row=12)
+    shopPrice.grid(column=1, row=13)
     def openLink3():
         webbrowser.open(link3)
     linkButton3 = Button(root, text="View product", command=openLink3, bg='green', fg='white')
@@ -142,24 +147,123 @@ def onClick():
     priceLabel = Label(root, text="Price : "+Price)
     ratingLabel = Label(root, text="Rating : "+Rating)
     offerLabel = Label(root, text=Offer)
-    nameLabel.grid(column=2, row=10)
-    offerLabel.grid(column=2, row=11)
-    priceLabel.grid(column=2, row=12)
-    ratingLabel.grid(column=2, row=13)
+    nameLabel.config(font=('helvetica',10,'bold'))
+    nameLabel.grid(column=3, row=10, columnspan=2)
+    offerLabel.grid(column=3, row=11)
+    priceLabel.grid(column=3, row=12)
+    ratingLabel.grid(column=3, row=13)
     def openLink4():
         webbrowser.open(link4)
     linkButton4 = Button(root, text="View product", command=openLink4, bg='green', fg='white')
-    linkButton4.grid(column=2, row=14)
+    linkButton4.grid(column=3, row=14)
     #----------------------------------------------------------------------------------------------------------------------------------
-    MyButton.grid_forget()
+    #------------------------------------Snapdeal-image------------------------------------------------------------------------------
+    Img_url = soup1.find('img', class_='product-image')
+    if Img_url:
+        print(Img_url.get('src'))
+        u = urlopen(Img_url.get('src'))
+        raw_data = u.read()
+        u.close()
+        im = Image.open(BytesIO(raw_data))
+        zoom = 0.5
+        pixels_x, pixels_y = tuple([int(zoom * x)  for x in im.size])
+        im = im.resize((pixels_x, pixels_y), Image.ANTIALIAS)
+        photo = ImageTk.PhotoImage(im)
+        imglabelSnap = Label(image=photo)
+        imglabelSnap.image = photo
+        imglabelSnap.grid(column=2, row=5, rowspan=3)
+    else:
+        imglabelSnap = Label(root, text="No Image Available")
+        imglabelSnap.grid(column=2, row=5, rowspan=3)
+    #----------------------------------------------------------------------------------------------------------------------------------
+    #------------------------------------Amazon-image------------------------------------------------------------------------------
+    Img_url = soup2.find('img', class_='s-image')
+    if Img_url:
+        print(Img_url.get('src'))
+        u = urlopen(Img_url.get('src'))
+        raw_data = u.read()
+        u.close()
+        im = Image.open(BytesIO(raw_data))
+        zoom = 0.5
+        pixels_x, pixels_y = tuple([int(zoom * x)  for x in im.size])
+        im = im.resize((pixels_x, pixels_y), Image.ANTIALIAS)
+        photo = ImageTk.PhotoImage(im)
+        imglabelAmazon = Label(image=photo)
+        imglabelAmazon.image = photo
+        imglabelAmazon.grid(column=4, row=5, rowspan=3)
+    else:
+        imglabelAmazon = Label(root, text="No Image Available")
+        imglabelAmazon.grid(column=4, row=5, rowspan=3)
+    #----------------------------------------------------------------------------------------------------------------------------------
+    #------------------------------------Shopclues-image------------------------------------------------------------------------------
+    Img_url = soup3.find('div', class_='img_section').find('img')
+    if Img_url:
+        print(Img_url.get('src'))
+        u = urlopen(Img_url.get('src'))
+        raw_data = u.read()
+        u.close()
+        im = Image.open(BytesIO(raw_data))
+        zoom = 0.5
+        pixels_x, pixels_y = tuple([int(zoom * x)  for x in im.size])
+        im = im.resize((pixels_x, pixels_y), Image.ANTIALIAS)
+        photo = ImageTk.PhotoImage(im)
+        imglabelShop = Label(image=photo)
+        imglabelShop.image = photo
+        imglabelShop.grid(column=2, row=11, rowspan=3)
+    else:
+        imglabelShop = Label(root, text="No Image Available")
+        imglabelShop.grid(column=2, row=11, rowspan=3)
+    #----------------------------------------------------------------------------------------------------------------------------------
+    #------------------------------------Flipkart-image------------------------------------------------------------------------------
+    Img_url = linkSoup.find('div', class_='_2_AcLJ')
+    if Img_url:
+        print(Img_url.get('style')[21:].strip(')'))
+        u = urlopen(Img_url.get('style')[21:].strip(')'))
+        raw_data = u.read()
+        u.close()
+        im = Image.open(BytesIO(raw_data))
+        photo = ImageTk.PhotoImage(im)
+        imglabel = Label(image=photo)
+        imglabel.image = photo
+        imglabel.grid(column=4, row=11, rowspan=3)
+    else:
+        imglabel = Label(root, text="No Image Available")
+        imglabel.grid(column=4, row=11, rowspan=3)
+    #----------------------------------------------------------------------------------------------------------------------------------
     exitButton = Button(root, text="Exit", command=root.quit, padx=20, bg='#333', fg='white')
-    exitButton.grid(column=1, row=15, columnspan=2)
+    exitButton.grid(column=1, row=15, columnspan=4, pady=10)
+    def Labeldel():
+        SnapName.grid_forget()
+        SnapOffer.grid_forget()
+        SnapRating.grid_forget()
+        SnapPrice.grid_forget()
+        imglabelSnap.grid_forget()
+        amaName.grid_forget()
+        amaOffer.grid_forget()
+        amaRating.grid_forget()
+        amaPrice.grid_forget()
+        imglabelAmazon.grid_forget()
+        shopName.grid_forget()
+        shopOffer.grid_forget()
+        shopRating.grid_forget()
+        shopPrice.grid_forget()
+        imglabelShop.grid_forget()
+        nameLabel.grid_forget()
+        offerLabel.grid_forget()
+        priceLabel.grid_forget()
+        ratingLabel.grid_forget()
+        imglabel.grid_forget()
+        onClick()
+    #MyButton.grid_forget()
+    MyButton = Button(root, text="Compare",  command=Labeldel, bg='#333', fg='white')
+    MyButton.config(font=(15))
+    MyButton.grid(column=1, row=3, columnspan=4, pady=10)
     #---------------------------------------------------------------------------------------------------------------------------------
 
 #-----------------------Search button------------------------------
 MyButton = Button(root, text="Compare",  command=onClick, bg='#333', fg='white')
 MyButton.config(font=(15))
-MyButton.grid(column=1, row=3, columnspan=2)
+MyButton.grid(column=1, row=3, columnspan=4, pady=10)
 #------------------------------------------------------------------
 
 root.mainloop()

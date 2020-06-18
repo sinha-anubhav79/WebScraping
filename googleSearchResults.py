@@ -19,7 +19,7 @@ myLabel0.config(font=("Courier", 40))
 #----------------------------------------------------------------------------
 
 #--------Input Field-------------
-SearchBar = Entry(root, width=50, borderwidth=1)
+SearchBar = Entry(root, width=50, borderwidth=1, font=('Helvetica',15))
 #--------------------------------
 
 #---------Position in the grid--------
@@ -43,27 +43,45 @@ def onClick():
     if anchor:
         link = anchor.find('a')['href']
     #---------------------------------------------------------------------------------------------------------------------------------
-    myLabel1 = Label(root, text=anchor.find('h3').get_text()+"\n"+anchor.find('cite').get_text(), fg='blue')
-    myLabel1.config(font=("sans-serif", 30))
-    myLabel2 = Label(root, text=soup.find('div', class_='s').get_text(), wraplength=1000, justify='left')
-    myLabel2.config(font=(18))
-    myLabel1.grid(column=1, row=4)
-    myLabel2.grid(column=1, row=5)
+    TitleLabel = Label(root, text=anchor.find('h3').get_text(), fg='blue')
+    TitleLabel.config(font=("sans-serif", 30))
+
+    LinkLabel = Label(root, text=anchor.find('cite').get_text(), fg='purple')
+    LinkLabel.config(font=(27))
+    
+    DescriptionLabel = Label(root, text=soup.find('div', class_='s').get_text(), wraplength=1200, justify='left')
+    DescriptionLabel.config(font=(18))
+
     def openLink():
-        webbrowser.open(link)
-    linkButton = Button(root, text="Visit page", command=openLink, bg='green', fg='white', borderwidth=5)
+        webbrowser.open_new(link)
+    
+    TitleLabel.grid(column=1, row=4, sticky="W", pady=0)
+    LinkLabel.grid(column=1, row=5, sticky="W", pady=0)
+    DescriptionLabel.grid(column=1, row=6, sticky="W", pady=0)
+
+    linkButton = Button(root, text="Visit page", command=openLink, bg='green', fg='white', borderwidth=2)
     linkButton.config(font=(14))
-    linkButton.grid(column=1, row=6)
-    MyButton.grid_forget()
-    exitButton = Button(root, text="Exit", command=root.quit, padx=20, bg='#333', fg='white', borderwidth=5)
+    linkButton.grid(column=1, row=7, pady=10)
+
+    def Labeldel():
+        TitleLabel.grid_forget()
+        LinkLabel.grid_forget()
+        DescriptionLabel.grid_forget()
+        onClick()
+
+    MyButton = Button(root, text="I'm Feeling Lucky", command=Labeldel, bg='#333', fg='white', borderwidth=5)
+    MyButton.config(font=(15))
+    MyButton.grid(column=1, row=3, pady=10)
+
+    exitButton = Button(root, text="Exit", command=root.quit, padx=20, bg='#333', fg='white', borderwidth=2)
     exitButton.config(font=(14))
-    exitButton.grid(column=1, row=9)
+    exitButton.grid(column=1, row=9, pady=10)
 #-------------------------------------------------------------------------------------------------------------------------------------
 
 #-----------------------Search button------------------------------
 MyButton = Button(root, text="I'm Feeling Lucky", command=onClick, bg='#333', fg='white', borderwidth=5)
 MyButton.config(font=(15))
-MyButton.grid(column=1, row=3)
+MyButton.grid(column=1, row=3, pady=10)
 #------------------------------------------------------------------
 
 root.mainloop()
