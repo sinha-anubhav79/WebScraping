@@ -38,18 +38,24 @@ def onClick():
     resp = requests.get(url, headers=headers)
     if resp.status_code == 200:
         soup = BeautifulSoup(resp.content, "html.parser")
-    
+    flag = True
     anchor = soup.find('div', class_='r')
     if anchor:
         link = anchor.find('a')['href']
+    else:
+        flag = False
     #---------------------------------------------------------------------------------------------------------------------------------
-    TitleLabel = Label(root, text=anchor.find('h3').get_text(), fg='blue')
-    TitleLabel.config(font=("sans-serif", 30))
-
-    LinkLabel = Label(root, text=anchor.find('cite').get_text(), fg='purple')
-    LinkLabel.config(font=(27))
+    if flag:
+        TitleLabel = Label(root, text=anchor.find('h3').get_text(), fg='blue')
+        LinkLabel = Label(root, text=anchor.find('cite').get_text(), fg='purple')
+        DescriptionLabel = Label(root, text=soup.find('div', class_='s').get_text(), wraplength=1200, justify='left')
+    else:
+        TitleLabel = Label(root, text="No Results", fg='blue')
+        LinkLabel = Label(root, text="Ooops!!", fg='purple')
+        DescriptionLabel = Label(root, text="Please check the keyword you entered, and try again.", wraplength=1200, justify='left')
     
-    DescriptionLabel = Label(root, text=soup.find('div', class_='s').get_text(), wraplength=1200, justify='left')
+    TitleLabel.config(font=("sans-serif", 30))
+    LinkLabel.config(font=(27))
     DescriptionLabel.config(font=(18))
 
     def openLink():

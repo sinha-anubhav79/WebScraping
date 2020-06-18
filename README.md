@@ -46,7 +46,7 @@ After resolving all these problems the third part became an easy task.
 
 **SCOPE OF IMPROVEMENT**
 
-Graphical user interface could be improved in all of the programs. 
+Graphical user interface could still be improved in all of the programs. 
 In the third part, the results could be sorted on the basis of price or rating. Or we could make that sorting custom as per user's choice.
 
 **WHAT YOU LEARNED?**

@@ -40,26 +40,34 @@ def onClick():
     resp = requests.get(url, headers=headers)
     if resp.status_code == 200:
         soup = BeautifulSoup(resp.content, "html.parser")
-    link = "https://www.flipkart.com"+soup.find('a', target='_blank').get('href')
-    response = requests.get(link, headers=headers)
-    if resp.status_code == 200:
-        linkSoup = BeautifulSoup(response.content, "html.parser")
-    if linkSoup.find('h1'):
-        Name = linkSoup.find('h1').get_text()
+    flag = True
+    if soup.find('a', target='_blank'):
+        link = "https://www.flipkart.com"+soup.find('a', target='_blank').get('href')
+        response = requests.get(link, headers=headers)
+        if resp.status_code == 200:
+            linkSoup = BeautifulSoup(response.content, "html.parser")
+        if linkSoup.find('h1'):
+            Name = linkSoup.find('h1').get_text()
+        else:
+            Name = " No such product available "
+        if linkSoup.find('div', class_='_1vC4OE _3qQ9m1'):
+            Price = linkSoup.find('div', class_='_1vC4OE _3qQ9m1').get_text()
+        else:
+            Price = " - "
+        if linkSoup.find('div', class_='hGSR34'):
+            Rating = linkSoup.find('div', class_='hGSR34').get_text()
+        else:
+            Rating = " - "
+        if linkSoup.find('div', class_='VGWI6T'):
+            Offer = linkSoup.find('div', class_='VGWI6T').get_text()
+        else:
+            Offer = " - "
     else:
         Name = " No such product available "
-    if linkSoup.find('div', class_='_1vC4OE _3qQ9m1'):
-        Price = linkSoup.find('div', class_='_1vC4OE _3qQ9m1').get_text()
-    else:
         Price = " - "
-    if linkSoup.find('div', class_='hGSR34'):
-        Rating = linkSoup.find('div', class_='hGSR34').get_text()
-    else:
         Rating = " - "
-    if linkSoup.find('div', class_='VGWI6T'):
-        Offer = linkSoup.find('div', class_='VGWI6T').get_text()
-    else:
         Offer = " - "
+        flag = False
     #---------------------------------------------------------------------------------------------------------------------------------
     #------------------------------------display-results------------------------------------------------------------------------------
     nameLabel = Label(root, text=Name, wraplength=400, justify='left')
@@ -78,25 +86,31 @@ def onClick():
     def openLink():
         webbrowser.open(link)
 
-    linkButton = Button(root, text="Visit page", command=openLink, bg='green', fg='white')
-    linkButton.config(font=(14))
-    linkButton.grid(column=4, row=10)
-    
     exitButton = Button(root, text="Exit", command=root.quit, padx=20, bg='#333', fg='white')
     exitButton.config(font=(14))
-    exitButton.grid(column=5, row=10,pady=20)
+    if flag:
+        linkButton = Button(root, text="Visit page", command=openLink, bg='green', fg='white')
+        linkButton.config(font=(14))
+        linkButton.grid(column=4, row=10)
+        exitButton.grid(column=5, row=10, pady=20)
+    else:
+        exitButton.grid(column=4, row=10, columnspan=2, pady=20)
     #------------------------------------------------------image----------------------------------------------------------------------
-    Img_url = linkSoup.find('div', class_='_2_AcLJ')
-    if Img_url:
-        print(Img_url.get('style')[21:].strip(')'))
-        u = urlopen(Img_url.get('style')[21:].strip(')'))
-        raw_data = u.read()
-        u.close()
-        im = Image.open(BytesIO(raw_data))
-        photo = ImageTk.PhotoImage(im)
-        imglabel = Label(image=photo)
-        imglabel.image = photo
-        imglabel.grid(column=4, row=4, columnspan=2)
+    if flag:
+        Img_url = linkSoup.find('div', class_='_2_AcLJ')
+        if Img_url:
+            print(Img_url.get('style')[21:].strip(')'))
+            u = urlopen(Img_url.get('style')[21:].strip(')'))
+            raw_data = u.read()
+            u.close()
+            im = Image.open(BytesIO(raw_data))
+            photo = ImageTk.PhotoImage(im)
+            imglabel = Label(image=photo)
+            imglabel.image = photo
+            imglabel.grid(column=4, row=4, columnspan=2)
+        else:
+            imglabel = Label(root, text="No Image Available")
+            imglabel.grid(column=4, row=4, columnspan=2)
     else:
         imglabel = Label(root, text="No Image Available")
         imglabel.grid(column=4, row=4, columnspan=2)
@@ -107,6 +121,9 @@ def onClick():
         priceLabel.grid_forget()
         ratingLabel.grid_forget()
         imglabel.grid_forget()
+        if flag:
+            linkButton.grid_forget()
+        exitButton.grid_forget()
         onClick()
 
     #MyButton.grid_forget()
